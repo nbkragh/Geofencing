@@ -1,4 +1,4 @@
-package com.tinmegali.mylocation;
+package com.nbk.minlokation;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -15,10 +15,8 @@ import android.util.Log;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class GeofenceTrasitionService extends IntentService {
 
@@ -43,7 +41,7 @@ public class GeofenceTrasitionService extends IntentService {
         int geoFenceTransition = geofencingEvent.getGeofenceTransition();
         // Check if the transition type is of interest
         if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
+                geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 

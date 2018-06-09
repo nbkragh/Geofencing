@@ -1,4 +1,4 @@
-package com.tinmegali.mylocation;
+package com.nbk.minlokation;
 
 import android.Manifest;
 import android.app.PendingIntent;
@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.media.MediaPlayer;
 public class MainActivity extends AppCompatActivity
         implements
             GoogleApiClient.ConnectionCallbacks,
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity
     private TextView textLat, textLong;
 
     private MapFragment mapFragment;
+    private MediaPlayer soundfile1;
 
     private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
     // Create a Intent send by the notification
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity
 
         // Call GoogleApiClient connection when starting the Activity
         googleApiClient.connect();
+
     }
 
     @Override
@@ -199,6 +202,9 @@ public class MainActivity extends AppCompatActivity
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick("+latLng +")");
         markerForGeofence(latLng);
+        soundfile1 = MediaPlayer.create(this, R.raw.mtgs);
+        soundfile1.start();
+        soundfile1.release();
     }
 
     @Override
