@@ -2,12 +2,15 @@ package com.nbk.minlokation;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -42,6 +45,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.media.MediaPlayer;
+import com.nbk.minlokation.GeofenceTrasitionService.LocalBinder;
+
+
 public class MainActivity extends AppCompatActivity
         implements
             GoogleApiClient.ConnectionCallbacks,
@@ -50,7 +56,8 @@ public class MainActivity extends AppCompatActivity
             OnMapReadyCallback,
             GoogleMap.OnMapClickListener,
             GoogleMap.OnMarkerClickListener,
-            ResultCallback<Status> {
+            ResultCallback<Status>,
+            ServiceCallbacks{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     private TextView textLat, textLong;
 
     private MapFragment mapFragment;
-    private MediaPlayer soundfile1;
+    private MediaPlayer mediaPlayer;
 
     private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
     // Create a Intent send by the notification
@@ -104,6 +111,8 @@ public class MainActivity extends AppCompatActivity
         // Call GoogleApiClient connection when starting the Activity
         googleApiClient.connect();
 
+        //bind to GeofenceTrasitionService
+        bindService(new Intent(this, GeofenceTrasitionService.class), serviceConnection, Context.BIND_AUTO_CREATE );
     }
 
     @Override
@@ -112,6 +121,13 @@ public class MainActivity extends AppCompatActivity
 
         // Disconnect GoogleApiClient when stopping Activity
         googleApiClient.disconnect();
+
+        //unbind from service
+        if (bound){
+            myGeofenceTrasitionService.setCallbacks(null);
+            unbindService(serviceConnection);
+            bound = false;
+        }
     }
 
     @Override
@@ -202,9 +218,7 @@ public class MainActivity extends AppCompatActivity
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick("+latLng +")");
         markerForGeofence(latLng);
-        soundfile1 = MediaPlayer.create(this, R.raw.mtgs);
-        soundfile1.start();
-        soundfile1.release();
+
     }
 
     @Override
@@ -465,4 +479,32 @@ public class MainActivity extends AppCompatActivity
             geoFenceLimits.remove();
     }
 
+
+    // Nicolai ...
+    private GeofenceTrasitionService myGeofenceTrasitionService;
+    private boolean bound = false;
+
+    private ServiceConnection serviceConnection = new ServiceConnection(){
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service){
+            LocalBinder binder = (LocalBinder) service;
+            myGeofenceTrasitionService = binder.getGeofenceTrasitionService();
+            bound = true;
+            myGeofenceTrasitionService.setCallbacks(MainActivity.this);
+        }
+        @Override
+        public void onServiceDisconnected (ComponentName arg0){
+            bound = false;
+        }
+    };
+
+    public void onTransitionCall(){
+        Log.i(TAG, "onTransistionCall kaldt!");
+        playSound();
+    }
+    public void playSound(){
+        mediaPlayer = MediaPlayer.create(this, R.raw.mtgs);
+        mediaPlayer.start();
+        //mediaPlayer.release();
+    }
 }

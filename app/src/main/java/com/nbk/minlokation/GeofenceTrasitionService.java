@@ -8,6 +8,8 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Binder;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeofenceTrasitionService extends IntentService {
+
 
     private static final String TAG = GeofenceTrasitionService.class.getSimpleName();
 
@@ -46,9 +49,10 @@ public class GeofenceTrasitionService extends IntentService {
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
-
+            Log.d(TAG, geofenceTransitionDetails);
             // Send notification details as a String
             sendNotification( geofenceTransitionDetails );
+
         }
     }
 
@@ -89,6 +93,11 @@ public class GeofenceTrasitionService extends IntentService {
                 GEOFENCE_NOTIFICATION_ID,
                 createNotification(msg, notificationPendingIntent));
 
+        //Nicolai...
+        if(serviceCallbacks != null){
+            Log.i(TAG, "serviceCallbacks kaldt!");
+            serviceCallbacks.onTransitionCall();
+        }
     }
 
     // Create notification
@@ -117,5 +126,24 @@ public class GeofenceTrasitionService extends IntentService {
             default:
                 return "Unknown error.";
         }
+    }
+
+    private final IBinder binder = new LocalBinder();
+
+    private ServiceCallbacks serviceCallbacks;
+
+    public class LocalBinder extends Binder{
+        GeofenceTrasitionService getGeofenceTrasitionService(){
+            return GeofenceTrasitionService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent){
+        return  binder;
+    }
+
+    public void setCallbacks(ServiceCallbacks callbacks){
+        serviceCallbacks = callbacks;
     }
 }
