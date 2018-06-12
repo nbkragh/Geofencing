@@ -357,14 +357,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 500.0f; // in meters
+    //geofence id increment
+    private static int id_number = 0;
+    private static String GEOFENCE_REQ_ID = String.valueOf(id_number);
+    private static final float GEOFENCE_RADIUS = 2.0f; // in meters
 
     // Create a Geofence
     private Geofence createGeofence( LatLng latLng, float radius ) {
         Log.d(TAG, "createGeofence");
         return new Geofence.Builder()
-                .setRequestId(GEOFENCE_REQ_ID)
+                //geofence id increment
+                .setRequestId(String.valueOf(id_number++))
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
                 .setExpirationDuration( GEO_DURATION )
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
@@ -421,9 +424,9 @@ public class MainActivity extends AppCompatActivity
     private void drawGeofence() {
         Log.d(TAG, "drawGeofence()");
 
-        if ( geoFenceLimits != null )
+/*        if ( geoFenceLimits != null )
             geoFenceLimits.remove();
-
+*/
         CircleOptions circleOptions = new CircleOptions()
                 .center( geoFenceMarker.getPosition())
                 .strokeColor(Color.argb(50, 70,70,70))
