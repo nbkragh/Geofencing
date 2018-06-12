@@ -302,6 +302,7 @@ public class MainActivity extends AppCompatActivity
         writeActualLocation(lastLocation);
     }
 
+    private boolean startLocation = true;
     private Marker locationMarker;
     private void markerLocation(LatLng latLng) {
         Log.i(TAG, "markerLocation("+latLng+")");
@@ -310,12 +311,16 @@ public class MainActivity extends AppCompatActivity
                 .position(latLng)
                 .title(title);
         if ( map!=null ) {
-            if ( locationMarker != null )
+            if (locationMarker != null)
                 locationMarker.remove();
             locationMarker = map.addMarker(markerOptions);
-            float zoom = 14f;
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-            map.animateCamera(cameraUpdate);
+            // nicolai
+            if (startLocation) {
+                float zoom = 14f;
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+                map.animateCamera(cameraUpdate);
+                startLocation = false;
+            }
         }
     }
 
@@ -363,7 +368,8 @@ public class MainActivity extends AppCompatActivity
                 .setCircularRegion( latLng.latitude, latLng.longitude, radius)
                 .setExpirationDuration( GEO_DURATION )
                 .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
-                        | Geofence.GEOFENCE_TRANSITION_EXIT )
+                        /* removed || GEOFENCE_TRANSITION_EXIT */
+                        )
                 .build();
     }
 
@@ -505,6 +511,6 @@ public class MainActivity extends AppCompatActivity
     public void playSound(){
         mediaPlayer = MediaPlayer.create(this, R.raw.mtgs);
         mediaPlayer.start();
-        //mediaPlayer.release();
+        mediaPlayer.release();
     }
 }
